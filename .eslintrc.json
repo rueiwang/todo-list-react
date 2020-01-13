@@ -23,5 +23,8 @@
         "react"
     ],
     "rules": {
+        "indent": ["error", 4],
+        "no-console": "off",
+        "react/prop-types": 0
     }
 }
