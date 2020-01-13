@@ -18,7 +18,7 @@ class InputToDoItem extends React.Component {
       </label>
       <input type="submit" value="Submit" />
     </form>
-  }
+  }  
 }
 
 class ToDoList extends React.Component {
