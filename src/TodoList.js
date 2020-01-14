@@ -10,7 +10,7 @@ class TodoList extends Component {
             inputValue: '',
             list: [],
             cacheList: [{
-                name: '測試',
+                name: '個人專案發想',
                 id: '12',
                 isChecked: false
             }],
@@ -70,52 +70,26 @@ class TodoList extends Component {
     }
 
     changeStatus (status) {
-        this.setState((state) => {
-            const doneList = this.state.list.filter((item) => item.isChecked === true)
-            const pendingList = this.state.list.filter((item) => item.isChecked === false)
-            if (status === 'all') {
-                this.setState((state) => {
-                    return {
-                        visibility: status,
-                        cacheList: this.state.list
-                    }
-                })
-            } else if (status === 'pending') {
-                this.setState((state) => {
-                    return {
-                        visibility: status,
-                        cacheList: pendingList
-                    }
-                })
-            } else if (status === 'done') {
-                this.setState((state) => {
-                    return {
-                        visibility: status,
-                        cacheList: doneList
-                    }
-                })
-            }
-        })
-    }
-
-    showItems () {
-        const doneList = this.state.cacheList.filter((item) => item.isChecked === true)
-        const pendingList = this.state.cacheList.filter((item) => item.isChecked === false)
-        if (this.state.visibility === 'all') {
+        const doneList = this.state.list.filter((item) => item.isChecked === true)
+        const pendingList = this.state.list.filter((item) => item.isChecked === false)
+        if (status === 'all') {
             this.setState((state) => {
                 return {
+                    visibility: status,
                     cacheList: this.state.list
                 }
             })
-        } else if (this.state.visibility === 'pending') {
+        } else if (status === 'pending') {
             this.setState((state) => {
                 return {
+                    visibility: status,
                     cacheList: pendingList
                 }
             })
-        } else if (this.state.visibility === 'done') {
+        } else if (status === 'done') {
             this.setState((state) => {
                 return {
+                    visibility: status,
                     cacheList: doneList
                 }
             })
@@ -164,7 +138,8 @@ class TodoList extends Component {
         console.log(index)
         this.setState((state) => {
             return {
-                list: updateList
+                list: updateList,
+                cacheList: updateList
             }
         })
     }
