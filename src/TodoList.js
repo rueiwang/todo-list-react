@@ -1,5 +1,5 @@
 
-import React, { Component, Fragment } from 'react'
+import React, { Component } from 'react'
 import TodoStatus from './TodoStatus'
 import TodoItem from './TodoItem'
 
@@ -8,10 +8,14 @@ class TodoList extends Component {
         super(props)
         this.state = {
             inputValue: '',
-            list: [],
+            list: [{
+                name: '還有什麼事情沒做完呢?',
+                id: '1233',
+                isChecked: false
+            }],
             cacheList: [{
-                name: '個人專案發想',
-                id: '12',
+                name: '還有什麼事情沒做完呢?',
+                id: '1233',
                 isChecked: false
             }],
             visibility: 'all'
@@ -25,24 +29,28 @@ class TodoList extends Component {
 
     render () {
         return (
-            <Fragment>
+            <div className="wrap">
+                <h1>To Do List</h1>
                 <div className="todoStatus">
                     {this.getStatus()}
                 </div>
+                <p> {this.state.list.filter((item) => item.isChecked === false).length} items left </p>
                 <ul className="itemList">
                     {this.getTodoItem()}
                 </ul>
-                <div>
+                <div className="input-area">
                     <input
                         className="inputItem"
+                        placeholder="Add somthing ..."
                         type="text"
                         value={this.state.inputValue}
                         onChange={this.handleInputChange}
                     />
                     <button
-                        onClick={this.addItem}>新增</button>
+                        onClick={this.addItem}><i className="fas fa-pencil-alt"></i></button>
                 </div>
-            </Fragment>
+                <p className="date">{this.getDate()}</p>
+            </div>
         )
     }
 
@@ -67,6 +75,15 @@ class TodoList extends Component {
                 />
             )
         })
+    }
+
+    getDate () {
+        const date = new Date()
+        const yyyy = date.getFullYear()
+        const MM = (date.getMonth() + 1) >= 10 ? (date.getMonth() + 1) : ('0' + (date.getMonth() + 1))
+        const dd = date.getDate() < 10 ? ('0' + date.getDate()) : date.getDate()
+        const today = yyyy + '/' + MM + '/' + dd
+        return today
     }
 
     changeStatus (status) {

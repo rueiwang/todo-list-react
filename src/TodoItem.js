@@ -14,15 +14,16 @@ class TodoItem extends Component {
             <li className={
                 item.isChecked ? 'done' : ''
             }>
-                <label className="container" />
-                <input type="checkbox"
-                    onChange={this.checkedItem}
-                    checked={item.isChecked}
-                />
-                {item.name}
-                <span className="checkmark"></span>
-                <button
-                    onClick={this.handleClick}>刪除</button>
+                <label className="container">
+                    <input type="checkbox"
+                        onChange={this.checkedItem}
+                        checked={item.isChecked}
+                    />
+                    {item.name}
+                    <span className="checkmark"></span>
+                    <button
+                        onClick={this.handleClick}><i className="fas fa-trash-alt"></i></button>
+                </label>
             </li>
         )
     }
