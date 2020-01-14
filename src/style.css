@@ -1,3 +1,7 @@
-h3 {
+.todoStatus .active {
     color: red;
+}
+
+.itemList .done {
+    text-decoration: line-through;
 }
