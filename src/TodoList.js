@@ -8,16 +8,8 @@ class TodoList extends Component {
         super(props)
         this.state = {
             inputValue: '',
-            list: [{
-                name: '還有什麼事情沒做完呢?',
-                id: '1233',
-                isChecked: false
-            }],
-            cacheList: [{
-                name: '還有什麼事情沒做完呢?',
-                id: '1233',
-                isChecked: false
-            }],
+            list: [],
+            cacheList: [],
             visibility: 'all'
         }
         this.handleInputChange = this.handleInputChange.bind(this)
@@ -132,22 +124,53 @@ class TodoList extends Component {
                 inputValue: ''
             }
         })
-        this.setState((state) => {
-            return {
-                cacheList: [...state.list]
-            }
-        })
+        if (this.state.visibility === 'all' || this.state.visibility === 'pending') {
+            this.setState((state) => {
+                return {
+                    cacheList: [...state.list]
+                }
+            })
+        }
     }
 
     doneItem (index, boolean) {
         console.log(index)
         const updateItemIndex = this.state.list.findIndex((item) => item.id === index)
-        this.setState((state) => {
-            state.list[updateItemIndex].isChecked = boolean
-            return {
-                list: [...state.list]
-            }
-        })
+        if (this.state.visibility === 'all') {
+            this.setState((state) => {
+                state.list[updateItemIndex].isChecked = boolean
+                return {
+                    cacheList: [...state.list],
+                    list: [...state.list]
+                }
+            })
+        } else if (this.state.visibility === 'pending') {
+            this.setState((state) => {
+                state.list[updateItemIndex].isChecked = boolean
+                return {
+                    list: [...state.list]
+                }
+            })
+            this.setState((state) => {
+                const pendingList = this.state.list.filter((item) => item.isChecked === false)
+                return {
+                    cacheList: pendingList
+                }
+            })
+        } else if (this.state.visibility === 'done') {
+            this.setState((state) => {
+                state.list[updateItemIndex].isChecked = boolean
+                return {
+                    list: [...state.list]
+                }
+            })
+            this.setState((state) => {
+                const doneList = this.state.list.filter((item) => item.isChecked === true)
+                return {
+                    cacheList: doneList
+                }
+            })
+        }
     }
 
     deleteItem (index) {
@@ -155,8 +178,12 @@ class TodoList extends Component {
         console.log(index)
         this.setState((state) => {
             return {
-                list: updateList,
-                cacheList: updateList
+                list: updateList
+            }
+        })
+        this.setState((state) => {
+            return {
+                cacheList: [...state.list]
             }
         })
     }
