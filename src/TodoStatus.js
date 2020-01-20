@@ -13,15 +13,15 @@ class TodoStatus extends Component {
                 <div>
                     <a href="#"
                         className={`all ${visibility === 'all' ? 'active' : ''}`}
-                        onClick={this.handleClick}>全部</a></div>
+                        onClick={this.props.changeStatus}>全部</a></div>
                 <div>
                     <a href="#"
                         className={`pending ${visibility === 'pending' ? 'active' : ''}`}
-                        onClick={this.handleClick}>待辦</a></div>
+                        onClick={this.props.changeStatus}>待辦</a></div>
                 <div>
                     <a href="#"
                         className={`done ${visibility === 'done' ? 'active' : ''}`}
-                        onClick={this.handleClick}>已完成</a></div>
+                        onClick={this.props.changeStatus}>已完成</a></div>
             </Fragment>
         )
     }

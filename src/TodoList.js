@@ -1,24 +1,91 @@
-
+/* eslint-disable no-case-declarations */
+/* eslint-disable no-useless-constructor */
 import React, { Component } from 'react'
+import { connect } from 'react-redux'
 import TodoStatus from './TodoStatus'
 import TodoItem from './TodoItem'
+import {
+    HANDLE_INPUT,
+    ADD_ITEM,
+    DELETE_ITEM,
+    COMPLETE_ITEM,
+    CHANGE_STATUS
+} from './constants/ActionTypes'
 
-class TodoList extends Component {
-    constructor (props) {
-        super(props)
-        this.state = {
-            inputValue: '',
-            list: [],
-            cacheList: [],
-            visibility: 'all'
+import {
+    handleInput,
+    addItem,
+    deleteItem,
+    completeItem,
+    changeStatus
+} from './actions/TodoList'
+
+const initState = {
+    inputValue: '',
+    list: [],
+    visibility: 'all'
+}
+
+export const reducer = (state = initState, action) => {
+    switch (action.type) {
+    case HANDLE_INPUT:
+        return {
+            ...state,
+            inputValue: action.payload.input
         }
-        this.handleInputChange = this.handleInputChange.bind(this)
-        this.addItem = this.addItem.bind(this)
-        this.deleteItem = this.deleteItem.bind(this)
-        this.doneItem = this.doneItem.bind(this)
-        this.changeStatus = this.changeStatus.bind(this)
+    case ADD_ITEM:
+        return {
+            ...state,
+            list: [...state.list, {
+                name: state.inputValue,
+                id: Date.now(),
+                isChecked: false
+            }],
+            inputValue: ''
+        }
+    case DELETE_ITEM:
+        return {
+            ...state,
+            list: state.list.filter((item) => item.id !== action.payload.index)
+        }
+    case COMPLETE_ITEM:
+    {
+        const targetIndex = state.list.findIndex((item) => item.id === action.payload.index)
+        const newList = [...state.list]
+        newList[targetIndex].isChecked = action.payload.isComplete
+        return {
+            ...state,
+            list: newList
+        }
     }
+    case CHANGE_STATUS:
+        return {
+            ...state,
+            visibility: action.payload.status
+        }
+    default:
+        return state
+    }
+}
 
+// connect arg
+export const mapDispatchToProps = dispatch => {
+    return {
+        handleInput: (input) => dispatch(handleInput(input)),
+        addItem: (index) => dispatch(addItem(index)),
+        deleteItem: (index) => dispatch(deleteItem(index)),
+        completeItem: (index, boolean) => dispatch(completeItem(index, boolean)),
+        changeStatus: (status) => dispatch(changeStatus(status))
+    }
+}
+
+const mapStateToProps = state => ({
+    inputValue: state.inputValue,
+    list: state.list,
+    visibility: state.visibility
+})
+
+class ConnectTodoList extends Component {
     render () {
         return (
             <div className="wrap">
@@ -26,7 +93,7 @@ class TodoList extends Component {
                 <div className="todoStatus">
                     {this.getStatus()}
                 </div>
-                <p> {this.state.list.filter((item) => item.isChecked === false).length} items left </p>
+                <p> {this.props.list.filter((item) => item.isChecked === false).length} items left </p>
                 <ul className="itemList">
                     {this.getTodoItem()}
                 </ul>
@@ -35,11 +102,11 @@ class TodoList extends Component {
                         className="inputItem"
                         placeholder="Add somthing ..."
                         type="text"
-                        value={this.state.inputValue}
-                        onChange={this.handleInputChange}
+                        value={this.props.inputValue}
+                        onChange={this.props.handleInput.bind(this)}
                     />
                     <button
-                        onClick={this.addItem}><i className="fas fa-pencil-alt"></i></button>
+                        onClick={this.props.addItem}><i className="fas fa-pencil-alt"></i></button>
                 </div>
                 <p className="date">{this.getDate()}</p>
             </div>
@@ -49,21 +116,30 @@ class TodoList extends Component {
     getStatus () {
         return (
             <TodoStatus
-                visibility = {this.state.visibility}
-                changeStatus = {this.changeStatus}
+                visibility = {this.props.visibility}
+                changeStatus = {this.props.changeStatus}
             />
         )
     }
 
     getTodoItem () {
-        return this.state.cacheList.map((item, index) => {
+        let renderList
+        if (this.props.visibility === 'all') {
+            renderList = this.props.list
+        } else if (this.props.visibility === 'pending') {
+            renderList = this.props.list.filter((item) => item.isChecked === false)
+        } else if (this.props.visibility === 'done') {
+            renderList = this.props.list.filter((item) => item.isChecked === true)
+        }
+        return renderList.map((item, index) => {
             return (
                 <TodoItem
                     key = {item.id}
                     item = {item}
                     index = {item.id}
-                    deleteItem = {this.deleteItem}
-                    doneItem = {this.doneItem}
+                    list = {this.props.list}
+                    deleteItem = {this.props.deleteItem}
+                    completeItem = {this.props.completeItem}
                 />
             )
         })
@@ -77,116 +153,8 @@ class TodoList extends Component {
         const today = yyyy + '/' + MM + '/' + dd
         return today
     }
-
-    changeStatus (status) {
-        const doneList = this.state.list.filter((item) => item.isChecked === true)
-        const pendingList = this.state.list.filter((item) => item.isChecked === false)
-        if (status === 'all') {
-            this.setState((state) => {
-                return {
-                    visibility: status,
-                    cacheList: this.state.list
-                }
-            })
-        } else if (status === 'pending') {
-            this.setState((state) => {
-                return {
-                    visibility: status,
-                    cacheList: pendingList
-                }
-            })
-        } else if (status === 'done') {
-            this.setState((state) => {
-                return {
-                    visibility: status,
-                    cacheList: doneList
-                }
-            })
-        }
-    }
-
-    handleInputChange (e) {
-        this.setState({
-            inputValue: e.target.value
-        })
-    }
-
-    addItem () {
-        const newItem = {
-            name: this.state.inputValue,
-            id: Date.now(),
-            isChecked: false
-        }
-        this.setState((state) => {
-            // 複製原本的加入新的
-            return {
-                list: [...state.list, newItem],
-                inputValue: ''
-            }
-        })
-        if (this.state.visibility === 'all' || this.state.visibility === 'pending') {
-            this.setState((state) => {
-                return {
-                    cacheList: [...state.list]
-                }
-            })
-        }
-    }
-
-    doneItem (index, boolean) {
-        console.log(index)
-        const updateItemIndex = this.state.list.findIndex((item) => item.id === index)
-        if (this.state.visibility === 'all') {
-            this.setState((state) => {
-                state.list[updateItemIndex].isChecked = boolean
-                return {
-                    cacheList: [...state.list],
-                    list: [...state.list]
-                }
-            })
-        } else if (this.state.visibility === 'pending') {
-            this.setState((state) => {
-                state.list[updateItemIndex].isChecked = boolean
-                return {
-                    list: [...state.list]
-                }
-            })
-            this.setState((state) => {
-                const pendingList = this.state.list.filter((item) => item.isChecked === false)
-                return {
-                    cacheList: pendingList
-                }
-            })
-        } else if (this.state.visibility === 'done') {
-            this.setState((state) => {
-                state.list[updateItemIndex].isChecked = boolean
-                return {
-                    list: [...state.list]
-                }
-            })
-            this.setState((state) => {
-                const doneList = this.state.list.filter((item) => item.isChecked === true)
-                return {
-                    cacheList: doneList
-                }
-            })
-        }
-    }
-
-    deleteItem (index) {
-        const updateList = this.state.list.filter((item) => item.id !== index)
-        console.log(index)
-        this.setState((state) => {
-            return {
-                list: updateList
-            }
-        })
-        this.setState((state) => {
-            return {
-                cacheList: [...state.list]
-            }
-        })
-    }
 }
+
+const TodoList = connect(mapStateToProps, mapDispatchToProps)(ConnectTodoList)
 
 export default TodoList
